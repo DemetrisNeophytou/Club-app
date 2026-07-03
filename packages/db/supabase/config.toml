@@ -17,3 +17,8 @@ enable_signup = true
 
 [studio]
 port = 54323
+
+# Stripe calls this endpoint directly — no user JWT to verify; authenticity
+# is proven by the webhook signature inside the function instead.
+[functions.stripe-webhook]
+verify_jwt = false

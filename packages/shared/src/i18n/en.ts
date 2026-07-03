@@ -48,6 +48,24 @@ export const en: typeof el = {
     position: (n: number) => `You're #${n} in line`,
     offer: "You're up! You have 30 minutes to buy.",
   },
+  common: {
+    loading: "Loading…",
+    error: "Something went wrong.",
+    retry: "Try again",
+    empty: "Nothing here yet.",
+    free: "Free",
+    from: "from",
+  },
+  auth: {
+    signIn: "Sign in",
+    signOut: "Sign out",
+    emailPlaceholder: "Your email",
+    sendCode: "Send me a code",
+    codePlaceholder: "6-digit code",
+    verify: "Verify",
+    codeSent: "We sent a code to your email.",
+    signInFirst: "Sign in to see your tickets.",
+  },
   profile: {
     language: "Language",
     payments: "Payment methods",
@@ -55,4 +73,4 @@ export const en: typeof el = {
     notifications: "Notifications",
     deleteAccount: "Delete account",
   },
-} as const;
+};

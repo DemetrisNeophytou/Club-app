@@ -46,6 +46,24 @@ export const el = {
     position: (n: number) => `Θέση ${n} στη σειρά`,
     offer: "Σειρά σου! Έχεις 30 λεπτά για να αγοράσεις.",
   },
+  common: {
+    loading: "Φόρτωση…",
+    error: "Κάτι πήγε στραβά.",
+    retry: "Δοκίμασε ξανά",
+    empty: "Τίποτα εδώ ακόμα.",
+    free: "Δωρεάν",
+    from: "από",
+  },
+  auth: {
+    signIn: "Σύνδεση",
+    signOut: "Αποσύνδεση",
+    emailPlaceholder: "Το email σου",
+    sendCode: "Στείλε μου κωδικό",
+    codePlaceholder: "6ψήφιος κωδικός",
+    verify: "Επιβεβαίωση",
+    codeSent: "Σου στείλαμε κωδικό στο email.",
+    signInFirst: "Συνδέσου για να δεις τα εισιτήριά σου.",
+  },
   profile: {
     language: "Γλώσσα",
     payments: "Τρόποι πληρωμής",
@@ -53,4 +71,4 @@ export const el = {
     notifications: "Ειδοποιήσεις",
     deleteAccount: "Διαγραφή λογαριασμού",
   },
-} as const;
+};

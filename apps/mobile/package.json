@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "@portal/shared": "workspace:*",
+    "@react-native-async-storage/async-storage": "2.1.2",
+    "@stripe/stripe-react-native": "0.45.0",
     "@supabase/supabase-js": "^2.45.0",
     "expo": "~53.0.0",
+    "expo-crypto": "~14.1.0",
     "expo-constants": "~17.1.0",
     "expo-linking": "~7.1.0",
     "expo-router": "~5.0.0",
@@ -20,8 +23,10 @@
     "nativewind": "^4.1.23",
     "react": "19.0.0",
     "react-native": "0.79.2",
+    "react-native-qrcode-svg": "^6.3.15",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
+    "react-native-svg": "15.11.2",
     "react-native-url-polyfill": "^2.0.0",
     "tailwindcss": "^3.4.17"
   },
