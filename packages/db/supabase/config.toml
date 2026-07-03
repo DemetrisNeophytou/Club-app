@@ -1,0 +1,19 @@
+project_id = "portal"
+
+[db]
+port = 54322
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[api]
+port = 54321
+schemas = ["public"]
+
+[auth]
+site_url = "http://localhost:3000"
+enable_signup = true
+
+[studio]
+port = 54323

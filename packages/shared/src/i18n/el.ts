@@ -1,0 +1,56 @@
+// Ελληνικά — primary language (spec §1, §9: short, confident, zero filler).
+export const el = {
+  tabs: {
+    tonight: "Απόψε",
+    search: "Αναζήτηση",
+    tickets: "Εισιτήρια",
+    profile: "Προφίλ",
+  },
+  feed: {
+    tonight: "Απόψε",
+    tomorrow: "Αύριο",
+    weekend: "Σαββατοκύριακο",
+    guestlistOpen: "Guestlist ανοιχτό",
+    sellingFast: "Φεύγει γρήγορα",
+    soldOut: "Sold out",
+    ticketsLeft: (n: number) => `${n} εισιτήρια ακόμα`,
+    allCities: "Όλη η Κύπρος",
+  },
+  event: {
+    doors: "Πόρτες",
+    ageLimit: (n: number) => `${n}+`,
+    lineup: "Lineup",
+    about: "Σχετικά",
+    guestlistUntil: (t: string) => `Δωρεάν είσοδος πριν τις ${t}`,
+    minSpend: "Ελάχιστη κατανάλωση",
+    deposit: (pct: number) => `Προκαταβολή ${pct}% τώρα`,
+    fairTicketing: "Χωρίς κρυφές χρεώσεις. Χωρίς μαύρη αγορά. Επιστροφές μόνο μέσω waitlist στην αρχική τιμή.",
+  },
+  checkout: {
+    total: "Σύνολο",
+    feeIncluded: (fee: string) => `Περιλαμβάνει ${fee} έξοδα κράτησης`,
+    pay: "Πληρωμή",
+    success: "Έτοιμο. Το εισιτήριό σου είναι στα Εισιτήρια.",
+  },
+  ticket: {
+    active: "Ενεργό",
+    scanned: "Σκαναρισμένο",
+    expired: "Έληξε",
+    transfer: "Μεταφορά σε φίλο",
+    returnTicket: "Επιστροφή εισιτηρίου",
+    code: "Κωδικός",
+    qrActivates: "Το QR ενεργοποιείται 2 ώρες πριν ανοίξουν οι πόρτες",
+  },
+  waitlist: {
+    join: "Μπες στο waitlist",
+    position: (n: number) => `Θέση ${n} στη σειρά`,
+    offer: "Σειρά σου! Έχεις 30 λεπτά για να αγοράσεις.",
+  },
+  profile: {
+    language: "Γλώσσα",
+    payments: "Τρόποι πληρωμής",
+    history: "Πού έχεις πάει",
+    notifications: "Ειδοποιήσεις",
+    deleteAccount: "Διαγραφή λογαριασμού",
+  },
+} as const;

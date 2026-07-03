@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Portal",
+    "slug": "portal",
+    "version": "0.1.0",
+    "scheme": "portal",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#080C16",
+    "splash": {
+      "backgroundColor": "#080C16"
+    },
+    "ios": {
+      "bundleIdentifier": "app.portal.cy",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "app.portal.cy"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

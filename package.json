@@ -1,0 +1,17 @@
+{
+  "name": "portal",
+  "private": true,
+  "version": "0.1.0",
+  "description": "PORTAL — nightlife ticketing & booking platform for Cyprus",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "mobile": "pnpm --filter @portal/mobile start",
+    "venues": "pnpm --filter @portal/venues dev",
+    "db:start": "pnpm --filter @portal/db db:start",
+    "db:reset": "pnpm --filter @portal/db db:reset",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

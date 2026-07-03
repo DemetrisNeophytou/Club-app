@@ -1,0 +1,19 @@
+{
+  "name": "@portal/shared",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Shared types and i18n for PORTAL",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./i18n": "./src/i18n/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}

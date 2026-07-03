@@ -1,0 +1,58 @@
+import type { el } from "./el";
+
+// English — mirrors the Greek copy (spec §9: short, confident).
+export const en: typeof el = {
+  tabs: {
+    tonight: "Tonight",
+    search: "Search",
+    tickets: "Tickets",
+    profile: "Profile",
+  },
+  feed: {
+    tonight: "Tonight",
+    tomorrow: "Tomorrow",
+    weekend: "Weekend",
+    guestlistOpen: "Guestlist open",
+    sellingFast: "Selling fast",
+    soldOut: "Sold out",
+    ticketsLeft: (n: number) => `${n} tickets left`,
+    allCities: "All of Cyprus",
+  },
+  event: {
+    doors: "Doors",
+    ageLimit: (n: number) => `${n}+`,
+    lineup: "Lineup",
+    about: "About",
+    guestlistUntil: (t: string) => `Free entry before ${t}`,
+    minSpend: "Minimum spend",
+    deposit: (pct: number) => `${pct}% deposit now`,
+    fairTicketing: "No hidden fees. No scalping. Returns only via the waitlist, at face value.",
+  },
+  checkout: {
+    total: "Total",
+    feeIncluded: (fee: string) => `Includes ${fee} booking fee`,
+    pay: "Pay",
+    success: "Done. Your ticket is in Tickets.",
+  },
+  ticket: {
+    active: "Active",
+    scanned: "Scanned",
+    expired: "Expired",
+    transfer: "Transfer to a friend",
+    returnTicket: "Return ticket",
+    code: "Code",
+    qrActivates: "QR activates 2 hours before doors",
+  },
+  waitlist: {
+    join: "Join the waitlist",
+    position: (n: number) => `You're #${n} in line`,
+    offer: "You're up! You have 30 minutes to buy.",
+  },
+  profile: {
+    language: "Language",
+    payments: "Payment methods",
+    history: "Where you've been",
+    notifications: "Notifications",
+    deleteAccount: "Delete account",
+  },
+} as const;
