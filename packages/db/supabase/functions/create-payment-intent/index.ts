@@ -21,13 +21,80 @@ Deno.serve(async (req) => {
   const user = await getUser(req);
   if (!user) return errorResponse("NOT_AUTHENTICATED", 401);
 
-  const { product_id, qty: rawQty } = await req.json().catch(() => ({}));
+  const { product_id, qty: rawQty, waitlist_id } = await req.json().catch(() => ({}));
   const qty = Number(rawQty ?? 1);
   if (!product_id || !Number.isInteger(qty) || qty < 1 || qty > 10) {
     return errorResponse("INVALID_INPUT");
   }
 
   const db = adminClient();
+
+  // ── Waitlist offer: buy a returned ticket at face value (hard rule 2).
+  // The seat is already claimed by the returned ticket, so NO quota claim.
+  if (waitlist_id) {
+    const { data: offer } = await db
+      .from("waitlist")
+      .select("id, user_id, product_id, status, offer_expires_at, offered_ticket_id")
+      .eq("id", waitlist_id)
+      .maybeSingle();
+    if (
+      !offer ||
+      offer.user_id !== user.id ||
+      offer.product_id !== product_id ||
+      offer.status !== "offered" ||
+      !offer.offered_ticket_id ||
+      (offer.offer_expires_at && Date.parse(offer.offer_expires_at) < Date.now())
+    ) {
+      return errorResponse("OFFER_NOT_VALID", 409);
+    }
+
+    const { data: product } = await db
+      .from("products")
+      .select("*, event:events(id, name, venue:venues(id, stripe_account_id))")
+      .eq("id", product_id)
+      .single();
+    const event = product!.event as unknown as {
+      id: string;
+      name: string;
+      venue: { id: string; stripe_account_id: string | null };
+    };
+    if (!event.venue.stripe_account_id) return errorResponse("VENUE_NOT_ONBOARDED", 409);
+
+    const { data: order, error: orderError } = await db
+      .from("orders")
+      .insert({
+        user_id: user.id,
+        event_id: event.id,
+        product_id,
+        qty: 1,
+        amount_cents: product!.price_cents,
+        fee_cents: product!.fee_cents,
+        status: "pending",
+      })
+      .select()
+      .single();
+    if (orderError) return errorResponse("ORDER_FAILED", 500);
+
+    const faceValue = product!.price_cents - product!.fee_cents;
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!);
+    const intent = await stripe.paymentIntents.create({
+      amount: product!.price_cents,
+      currency: "eur",
+      automatic_payment_methods: { enabled: true },
+      application_fee_amount:
+        Math.round((faceValue * COMMISSION_PCT) / 100) + product!.fee_cents,
+      transfer_data: { destination: event.venue.stripe_account_id },
+      metadata: {
+        order_id: order.id,
+        product_id,
+        event_name: event.name,
+        qty: "1",
+        waitlist_id: offer.id,
+      },
+    });
+    await db.from("orders").update({ stripe_payment_intent_id: intent.id }).eq("id", order.id);
+    return json({ client_secret: intent.client_secret, order_id: order.id });
+  }
 
   // Tables are booked one at a time.
   const { data: productPeek } = await db

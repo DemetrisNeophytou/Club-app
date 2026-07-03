@@ -15,7 +15,10 @@ type Phase = "idle" | "paying" | "done" | "error";
  * amount — the total shown here is display-only.
  */
 export default function CheckoutScreen() {
-  const { productId } = useLocalSearchParams<{ productId: string }>();
+  const { productId, waitlistId } = useLocalSearchParams<{
+    productId: string;
+    waitlistId?: string;
+  }>();
   const router = useRouter();
   const { t } = useI18n();
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
@@ -24,6 +27,7 @@ export default function CheckoutScreen() {
   const [qty, setQty] = useState(1);
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const [waitlistPosition, setWaitlistPosition] = useState<number | null>(null);
 
   useEffect(() => {
     supabase
@@ -33,6 +37,17 @@ export default function CheckoutScreen() {
       .maybeSingle()
       .then(({ data }) => setProduct(data as Product | null));
   }, [productId]);
+
+  const joinWaitlist = useCallback(async () => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      setMessage(t.auth.signInFirst);
+      return;
+    }
+    const { data, error } = await supabase.rpc("join_waitlist", { p_product_id: productId });
+    if (error) setMessage(t.common.error);
+    else setWaitlistPosition((data as { position: number }).position);
+  }, [productId, t]);
 
   const pay = useCallback(async () => {
     if (!product) return;
@@ -46,7 +61,7 @@ export default function CheckoutScreen() {
     setMessage(null);
     try {
       const { data, error } = await supabase.functions.invoke("create-payment-intent", {
-        body: { product_id: product.id, qty },
+        body: { product_id: product.id, qty, ...(waitlistId ? { waitlist_id: waitlistId } : {}) },
       });
       if (error) throw error;
 
@@ -85,7 +100,38 @@ export default function CheckoutScreen() {
     );
   }
 
-  const maxQty = Math.min(product.per_order_limit ?? 10, 10);
+  // Sold out + no offer in hand → the only honest door is the waitlist.
+  const soldOut =
+    !waitlistId && product.quota !== null && product.sold_count >= product.quota;
+  if (soldOut) {
+    return (
+      <View className="flex-1 justify-end bg-abyss/60">
+        <View className="rounded-t-3xl border-t border-line bg-deep p-6 pb-10">
+          <View className="mb-4 h-1 w-10 self-center rounded-full bg-line" />
+          <Text className="font-display text-xl font-bold text-bone">{product.name}</Text>
+          <Text className="mt-1 font-mono text-sm text-dim">{t.feed.soldOut}</Text>
+          {waitlistPosition !== null ? (
+            <View className="items-center py-8">
+              <Text className="text-lg text-seaglass">{t.waitlist.joined}</Text>
+              <Text className="mt-2 font-mono text-2xl text-bone">
+                {t.waitlist.position(waitlistPosition)}
+              </Text>
+            </View>
+          ) : (
+            <Pressable
+              onPress={joinWaitlist}
+              className="mt-6 items-center rounded-2xl bg-copper py-4 active:opacity-85"
+            >
+              <Text className="font-display font-bold text-abyss">{t.waitlist.join}</Text>
+            </Pressable>
+          )}
+          {message && <Text className="mt-3 text-center text-sm text-copper-hi">{message}</Text>}
+        </View>
+      </View>
+    );
+  }
+
+  const maxQty = waitlistId ? 1 : Math.min(product.per_order_limit ?? 10, 10);
   const isTable = product.type === "table";
   const unitPrice =
     isTable && product.table_min_spend_cents != null && product.deposit_pct != null
@@ -112,8 +158,11 @@ export default function CheckoutScreen() {
           </View>
         ) : (
           <>
-            {/* Quantity stepper (tables book one at a time) */}
-            {!isTable && (
+            {waitlistId && (
+              <Text className="mt-3 text-center text-sm text-seaglass">{t.waitlist.offer}</Text>
+            )}
+            {/* Quantity stepper (tables and waitlist offers: one at a time) */}
+            {!isTable && !waitlistId && (
               <View className="mt-5 flex-row items-center justify-center">
                 <Pressable
                   onPress={() => setQty(Math.max(1, qty - 1))}

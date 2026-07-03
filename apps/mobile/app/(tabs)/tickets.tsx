@@ -4,13 +4,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useI18n } from "../../lib/i18n";
 import { formatEventTime } from "../../lib/format";
-import { fetchMyTickets, type TicketWithEvent } from "../../lib/queries";
+import {
+  fetchMyTickets,
+  fetchMyWaitlist,
+  type TicketWithEvent,
+  type WaitlistWithRelations,
+} from "../../lib/queries";
 import { supabase } from "../../lib/supabase";
 
 export default function TicketsScreen() {
   const router = useRouter();
   const { lang, t } = useI18n();
   const [tickets, setTickets] = useState<TicketWithEvent[] | null>(null);
+  const [waitlist, setWaitlist] = useState<WaitlistWithRelations[]>([]);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
 
   useFocusEffect(
@@ -22,8 +28,11 @@ export default function TicketsScreen() {
         setSignedIn(Boolean(data.session));
         if (data.session) {
           try {
-            const mine = await fetchMyTickets();
-            if (!cancelled) setTickets(mine);
+            const [mine, wl] = await Promise.all([fetchMyTickets(), fetchMyWaitlist()]);
+            if (!cancelled) {
+              setTickets(mine);
+              setWaitlist(wl);
+            }
           } catch {
             if (!cancelled) setTickets([]);
           }
@@ -56,7 +65,62 @@ export default function TicketsScreen() {
         keyExtractor={(tk) => tk.id}
         contentContainerStyle={{ padding: 20 }}
         ListHeaderComponent={
-          <Text className="mb-5 font-display text-3xl font-black text-bone">{t.tabs.tickets}</Text>
+          <View>
+            <Text className="mb-5 font-display text-3xl font-black text-bone">
+              {t.tabs.tickets}
+            </Text>
+            {waitlist.length > 0 && (
+              <View className="mb-6">
+                <Text className="mb-2 font-display text-lg font-bold text-bone">
+                  {t.waitlist.title}
+                </Text>
+                {waitlist.map((w) => {
+                  const minsLeft = w.offer_expires_at
+                    ? Math.max(0, Math.round((Date.parse(w.offer_expires_at) - Date.now()) / 60000))
+                    : null;
+                  const offered = w.status === "offered" && (minsLeft === null || minsLeft > 0);
+                  return (
+                    <Pressable
+                      key={w.id}
+                      disabled={!offered}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/checkout",
+                          params: { productId: w.product_id, waitlistId: w.id },
+                        })
+                      }
+                      className={`mb-2 rounded-2xl border p-4 ${
+                        offered ? "border-seaglass/60 bg-seaglass/10" : "border-line bg-card"
+                      }`}
+                    >
+                      <View className="flex-row items-center justify-between">
+                        <View className="flex-1 pr-3">
+                          <Text className="font-display font-bold text-bone">{w.event.name}</Text>
+                          <Text className="mt-0.5 text-sm text-dim">{w.product.name}</Text>
+                        </View>
+                        {offered ? (
+                          <View className="items-end">
+                            <Text className="font-display text-sm font-bold text-seaglass">
+                              {t.waitlist.buyNow}
+                            </Text>
+                            {minsLeft !== null && (
+                              <Text className="font-mono text-xs text-dim">
+                                {t.waitlist.minsLeft(minsLeft)}
+                              </Text>
+                            )}
+                          </View>
+                        ) : (
+                          <Text className="font-mono text-xs text-dim">
+                            {t.waitlist.position(w.position)}
+                          </Text>
+                        )}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            )}
+          </View>
         }
         ListEmptyComponent={
           <Text className="py-16 text-center text-dim">

@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import type { Session } from "@supabase/supabase-js";
 import { palette, type AppLang } from "@portal/shared";
 import { useI18n } from "../../lib/i18n";
+import { registerForPush } from "../../lib/push";
 import { supabase } from "../../lib/supabase";
 
 // Προφίλ (spec §5.6): language toggle + email OTP auth (passwordless).
@@ -30,6 +31,7 @@ export default function ProfileScreen() {
       setIsStaff(false);
       return;
     }
+    registerForPush();
     supabase
       .from("venue_members")
       .select("venue_id")

@@ -38,13 +38,21 @@ export const el = {
     expired: "Έληξε",
     transfer: "Μεταφορά σε φίλο",
     returnTicket: "Επιστροφή εισιτηρίου",
+    returnConfirmTitle: "Επιστροφή εισιτηρίου;",
+    returnConfirmBody:
+      "Θα μπει στο waitlist για τον επόμενο. Θα πάρεις τα χρήματά σου πίσω όταν πουληθεί.",
+    returnedLabel: "Επιστράφηκε — σε αναμονή μεταπώλησης",
     code: "Κωδικός",
     qrActivates: "Το QR ενεργοποιείται 2 ώρες πριν ανοίξουν οι πόρτες",
   },
   waitlist: {
+    title: "Waitlist",
     join: "Μπες στο waitlist",
+    joined: "Είσαι στο waitlist",
     position: (n: number) => `Θέση ${n} στη σειρά`,
     offer: "Σειρά σου! Έχεις 30 λεπτά για να αγοράσεις.",
+    buyNow: "Αγόρασέ το τώρα",
+    minsLeft: (n: number) => `${n}' ακόμα`,
   },
   common: {
     loading: "Φόρτωση…",

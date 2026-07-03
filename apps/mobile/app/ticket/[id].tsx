@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import QRCode from "react-native-qrcode-svg";
@@ -9,6 +9,7 @@ import { useI18n } from "../../lib/i18n";
 import { formatEventTime } from "../../lib/format";
 import { fetchTicket, type TicketWithEvent } from "../../lib/queries";
 import { QR_WINDOW_SECONDS, qrActiveFrom, qrPayload } from "../../lib/qr";
+import { supabase } from "../../lib/supabase";
 
 // Ticket screen (spec §5.4): portal ring + rotating QR + live pulse.
 export default function TicketScreen() {
@@ -44,6 +45,26 @@ export default function TicketScreen() {
     }
   }, [ticket, qrActive, glExpired, now]);
 
+  const returnable =
+    ticket?.status === "active" && Date.parse(ticket.event.starts_at) > Date.now();
+
+  const returnTicket = useCallback(() => {
+    if (!ticket) return;
+    Alert.alert(t.ticket.returnConfirmTitle, t.ticket.returnConfirmBody, [
+      { text: t.venues.cancel, style: "cancel" },
+      {
+        text: t.ticket.returnTicket,
+        style: "destructive",
+        onPress: async () => {
+          const { error } = await supabase.functions.invoke("return-ticket", {
+            body: { ticket_id: ticket.id },
+          });
+          if (!error) setTicket({ ...ticket, status: "returned" });
+        },
+      },
+    ]);
+  }, [ticket, t]);
+
   if (!ticket) {
     return (
       <View className="flex-1 items-center justify-center bg-abyss">
@@ -65,6 +86,8 @@ export default function TicketScreen() {
         <View className="mt-8">
           {glExpired ? (
             <StatusBlock label={t.ticket.expired} tone={palette.dim} />
+          ) : ticket.status === "returned" ? (
+            <StatusBlock label={t.ticket.returnedLabel} tone={palette.copper} />
           ) : ticket.status === "scanned" ? (
             <StatusBlock label={t.ticket.scanned} tone={palette.dim} />
           ) : qrActive && payload ? (
@@ -86,14 +109,22 @@ export default function TicketScreen() {
         <Text className="mt-6 text-xs text-dim">{t.ticket.code}</Text>
         <Text className="mt-1 font-mono text-xl tracking-[0.3em] text-bone">{ticket.code}</Text>
 
-        {/* Transfer / return land with the waitlist flow (Phase 2 step 6) */}
         <View className="mt-8 w-full flex-row gap-3">
+          {/* Transfer to friend: Phase 3 */}
           <View className="flex-1 items-center rounded-2xl border border-line py-3.5 opacity-40">
             <Text className="text-sm text-dim">{t.ticket.transfer}</Text>
           </View>
-          <View className="flex-1 items-center rounded-2xl border border-line py-3.5 opacity-40">
-            <Text className="text-sm text-dim">{t.ticket.returnTicket}</Text>
-          </View>
+          <Pressable
+            disabled={!returnable}
+            onPress={returnTicket}
+            className={`flex-1 items-center rounded-2xl border py-3.5 ${
+              returnable ? "border-copper active:opacity-80" : "border-line opacity-40"
+            }`}
+          >
+            <Text className={`text-sm ${returnable ? "text-copper-hi" : "text-dim"}`}>
+              {t.ticket.returnTicket}
+            </Text>
+          </Pressable>
         </View>
       </View>
     </SafeAreaView>

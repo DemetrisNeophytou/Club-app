@@ -40,13 +40,21 @@ export const en: typeof el = {
     expired: "Expired",
     transfer: "Transfer to a friend",
     returnTicket: "Return ticket",
+    returnConfirmTitle: "Return this ticket?",
+    returnConfirmBody:
+      "It goes to the waitlist for the next person. You get your money back once it sells.",
+    returnedLabel: "Returned — awaiting resale",
     code: "Code",
     qrActivates: "QR activates 2 hours before doors",
   },
   waitlist: {
+    title: "Waitlist",
     join: "Join the waitlist",
+    joined: "You're on the waitlist",
     position: (n: number) => `You're #${n} in line`,
     offer: "You're up! You have 30 minutes to buy.",
+    buyNow: "Buy it now",
+    minsLeft: (n: number) => `${n}' left`,
   },
   common: {
     loading: "Loading…",

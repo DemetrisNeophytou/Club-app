@@ -15,12 +15,14 @@
 - [x] **Venues dashboard (Phase 2 βήμα 4):** login OTP, δημιουργία μαγαζιού, event CRUD, προϊόντα, δημοσίευση, live πωλήσεις (Realtime + polling)
 - [x] Realtime publication ενεργοποιήθηκε στο production (phase2-realtime.sql)
 - [x] **Door mode (Phase 2 βήμα 5):** σαρωτής QR με κάμερα, offline manifest, ουρά scans + sync, χειροκίνητο check-in με όνομα, μετρητής μέσα/σύνολο
+- [x] **Waitlist + επιστροφή + push (Phase 2 βήμα 6):** επιστροφή εισιτηρίου → FIFO προσφορά 30' στον επόμενο → αγορά στην αρχική τιμή → refund στον αρχικό· push tokens + ειδοποιήσεις· process-waitlist sweeper
 
 ## ⏳ Εκκρεμεί — Δημήτρης (από κινητό, browser)
 
 - [ ] **Revoke** το secret key που γράφτηκε στο chat (Project Settings → API Keys)
 - [ ] Λογαριασμός **Stripe** (test mode) → στείλε ΜΟΝΟ το `pk_test_...` (το `pk_live_` που βρήκες είναι για αργότερα, στο launch)
 - [ ] Τρέξε το `packages/db/apply/phase2-door.sql` στο SQL Editor (1 policy — δίνει στο προσωπικό της πόρτας πρόσβαση στα ονόματα των κατόχων εισιτηρίων ΤΟΥ ΔΙΚΟΥ ΤΟΥΣ event, για τη λίστα guestlist)
+- [ ] Τρέξε το `packages/db/apply/phase2-waitlist.sql` στο SQL Editor (στήλη offered_ticket_id + πίνακας push_tokens)
 - [ ] Ανέβασε το **portal-app.html** στο repo (ή paste στη συζήτηση)
 
 ## ⏳ Εκκρεμεί — Claude (μόλις έρθουν τα παραπάνω)
@@ -35,3 +37,5 @@
 - [ ] `pnpm install` + `npx expo start` → δοκιμή του app με Expo Go στο κινητό
 - [ ] Deploy Edge Functions με Supabase CLI (`supabase functions deploy`)
 - [ ] Stripe webhook endpoint σύνδεση (Stripe Dashboard → Webhooks → URL της stripe-webhook function)
+- [ ] Προγραμματισμός process-waitlist ανά 5' (Supabase Dashboard → Integrations → Cron, αφού γίνουν deploy οι functions)
+- [ ] Push notifications: χρειάζονται development build (EAS) — δεν δουλεύουν σε Expo Go

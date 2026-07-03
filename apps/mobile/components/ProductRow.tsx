@@ -21,7 +21,8 @@ export function ProductRow({
   const ended = product.sales_end && Date.parse(product.sales_end) < now;
   const glClosed = product.gl_cutoff_time && Date.parse(product.gl_cutoff_time) < now;
   const soldOut = left !== null && left === 0;
-  const disabled = Boolean(soldOut || notStarted || ended || glClosed);
+  // Sold-out tickets stay tappable → checkout offers the waitlist (rule 2).
+  const disabled = Boolean(notStarted || ended || glClosed || (soldOut && product.type !== "ticket"));
 
   return (
     <Pressable

@@ -54,6 +54,29 @@ export async function fetchMyTickets(): Promise<TicketWithEvent[]> {
   return data as unknown as TicketWithEvent[];
 }
 
+export type WaitlistWithRelations = {
+  id: string;
+  product_id: string;
+  position: number;
+  status: string;
+  offer_expires_at: string | null;
+  product: Pick<Product, "id" | "name" | "price_cents" | "type">;
+  event: Pick<Event, "id" | "name" | "starts_at">;
+};
+
+/** My live waitlist entries (RLS: own only). */
+export async function fetchMyWaitlist(): Promise<WaitlistWithRelations[]> {
+  const { data, error } = await supabase
+    .from("waitlist")
+    .select(
+      "id, product_id, position, status, offer_expires_at, product:products(id, name, price_cents, type), event:events(id, name, starts_at)",
+    )
+    .in("status", ["waiting", "offered"])
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data as unknown as WaitlistWithRelations[];
+}
+
 export async function fetchTicket(id: string): Promise<TicketWithEvent | null> {
   const { data, error } = await supabase
     .from("tickets")
