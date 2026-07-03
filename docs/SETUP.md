@@ -39,8 +39,44 @@
 - [ ] Οδηγίες deploy των Edge Functions + secrets (STRIPE_SECRET_KEY κ.λπ.)
 - [ ] Ρύθμιση email template για 6ψήφιο OTP (Authentication → Email Templates → να περιέχει `{{ .Token }}`)
 
-## ⏳ Εκκρεμεί — χρειάζεται υπολογιστή (μία φορά)
+## 🖥️ Η ΜΕΡΑ ΤΟΥ ΥΠΟΛΟΓΙΣΤΗ — πλήρης λίστα με τη σειρά
 
-- [ ] `pnpm install` + `npx expo start` → δοκιμή του app με Expo Go στο κινητό
-- [ ] Stripe webhook endpoint σύνδεση (Stripe Dashboard → Webhooks → `https://mxmehizzrlrbegrujdjp.supabase.co/functions/v1/stripe-webhook`)
-- [ ] Push notifications: χρειάζονται development build (EAS) — δεν δουλεύουν σε Expo Go
+### 1. Email templates (δεν έπαιζε το paste από κινητό)
+Supabase → Authentication → Emails. ΠΡΟΣΟΧΗ πρώτα: το Resend API key
+`re_efFmUtaH...` κάηκε (φάνηκε σε screenshot) → resend.com → API Keys →
+delete → Create νέο → βάλ' το στο SMTP Settings → Password → Save.
+
+Μετά, template **«Magic link or OTP»** ΚΑΙ **«Confirm signup»**:
+- Subject: `Ο κωδικός σου για το PORTAL`
+- Body (σβήσε το default, επικόλλησε):
+```html
+<h2>PORTAL</h2>
+<p>Ο κωδικός σύνδεσής σου: <strong style="font-size:24px">{{ .Token }}</strong></p>
+<p>Λήγει σύντομα. Αν δεν το ζήτησες εσύ, αγνόησέ το.</p>
+```
+Έλεγχος: Preview → πρέπει να δείχνει κωδικό-παράδειγμα.
+
+### 2. Stripe (test mode toggle ΟΝ παντού)
+- Developers → API keys → `pk_test_...` → στον Claude (chat)
+- `sk_test_...` → Supabase → Edge Functions → Secrets → `STRIPE_SECRET_KEY`
+- Developers → Webhooks → Add endpoint:
+  - URL: `https://mxmehizzrlrbegrujdjp.supabase.co/functions/v1/stripe-webhook`
+  - Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
+  - Signing secret `whsec_...` → Supabase Secrets → `STRIPE_WEBHOOK_SECRET`
+
+### 3. Πρώτη εκτέλεση του app
+```bash
+git clone <repo> && cd Club-app
+git checkout claude/portal-nightlife-spec-ybf4c5
+corepack enable && pnpm install
+cd apps/mobile && cp .env.example .env   # συμπλήρωσε το pk_test
+npx expo start                            # QR → Expo Go στο κινητό
+```
+Δοκιμή ροής: Προφίλ → σύνδεση με email (ο κωδικός έρχεται στο email του
+Resend λογαριασμού) → Απόψε → event → Guestlist (δωρεάν, δουλεύει χωρίς
+Stripe Connect) → Εισιτήρια → QR.
+
+### 4. Γνωστοί περιορισμοί εκείνης της μέρας
+- Πληρωμένα εισιτήρια: τα demo venues δεν έχουν Stripe Connect account →
+  «VENUE_NOT_ONBOARDED» (σωστό)· στήνουμε test Connect account τότε.
+- Push notifications: θέλουν EAS development build, όχι Expo Go.
