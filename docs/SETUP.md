@@ -11,12 +11,11 @@
 - [x] Οδηγός για αρχάριους: `docs/LEARN.md`
 - [x] Supabase project δημιουργήθηκε: `https://mxmehizzrlrbegrujdjp.supabase.co`
 - [x] Publishable key στα `.env.example`
+- [x] **Migrations + seed εφαρμόστηκαν στο production** (phase1.sql μέσω SQL Editor, 3/7/2026)
 
 ## ⏳ Εκκρεμεί — Δημήτρης (από κινητό, browser)
 
 - [ ] **Revoke** το secret key που γράφτηκε στο chat (Project Settings → API Keys)
-- [ ] Τρέξε το `packages/db/apply/phase1.sql` στο **SQL Editor** → Run
-      (επιβεβαίωση: 5 cities / 6 venues / 6 events / 18 products)
 - [ ] Λογαριασμός **Stripe** (test mode) → στείλε ΜΟΝΟ το `pk_test_...`
 - [ ] Ανέβασε το **portal-app.html** στο repo (ή paste στη συζήτηση)
 
