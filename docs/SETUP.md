@@ -13,12 +13,14 @@
 - [x] Publishable key στα `.env.example`
 - [x] **Migrations + seed εφαρμόστηκαν στο production** (phase1.sql μέσω SQL Editor, 3/7/2026)
 - [x] **Venues dashboard (Phase 2 βήμα 4):** login OTP, δημιουργία μαγαζιού, event CRUD, προϊόντα, δημοσίευση, live πωλήσεις (Realtime + polling)
+- [x] Realtime publication ενεργοποιήθηκε στο production (phase2-realtime.sql)
+- [x] **Door mode (Phase 2 βήμα 5):** σαρωτής QR με κάμερα, offline manifest, ουρά scans + sync, χειροκίνητο check-in με όνομα, μετρητής μέσα/σύνολο
 
 ## ⏳ Εκκρεμεί — Δημήτρης (από κινητό, browser)
 
 - [ ] **Revoke** το secret key που γράφτηκε στο chat (Project Settings → API Keys)
 - [ ] Λογαριασμός **Stripe** (test mode) → στείλε ΜΟΝΟ το `pk_test_...` (το `pk_live_` που βρήκες είναι για αργότερα, στο launch)
-- [ ] Τρέξε το `packages/db/apply/phase2-realtime.sql` στο SQL Editor (2 γραμμές — ενεργοποιεί τα live updates στις πωλήσεις)
+- [ ] Τρέξε το `packages/db/apply/phase2-door.sql` στο SQL Editor (1 policy — δίνει στο προσωπικό της πόρτας πρόσβαση στα ονόματα των κατόχων εισιτηρίων ΤΟΥ ΔΙΚΟΥ ΤΟΥΣ event, για τη λίστα guestlist)
 - [ ] Ανέβασε το **portal-app.html** στο repo (ή paste στη συζήτηση)
 
 ## ⏳ Εκκρεμεί — Claude (μόλις έρθουν τα παραπάνω)

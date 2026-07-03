@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import type { Session } from "@supabase/supabase-js";
 import { palette, type AppLang } from "@portal/shared";
 import { useI18n } from "../../lib/i18n";
@@ -8,8 +9,10 @@ import { supabase } from "../../lib/supabase";
 
 // Προφίλ (spec §5.6): language toggle + email OTP auth (passwordless).
 export default function ProfileScreen() {
+  const router = useRouter();
   const { lang, setLang, t } = useI18n();
   const [session, setSession] = useState<Session | null>(null);
+  const [isStaff, setIsStaff] = useState(false);
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
@@ -20,6 +23,19 @@ export default function ProfileScreen() {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  // Door mode entry appears only for venue staff (any role).
+  useEffect(() => {
+    if (!session) {
+      setIsStaff(false);
+      return;
+    }
+    supabase
+      .from("venue_members")
+      .select("venue_id")
+      .limit(1)
+      .then(({ data }) => setIsStaff((data ?? []).length > 0));
+  }, [session]);
 
   const sendCode = async () => {
     setMessage(null);
@@ -68,6 +84,14 @@ export default function ProfileScreen() {
         {session ? (
           <View>
             <Text className="text-dim">{session.user.email}</Text>
+            {isStaff && (
+              <Pressable
+                onPress={() => router.push("/door")}
+                className="mt-4 items-center rounded-2xl bg-seaglass py-3.5"
+              >
+                <Text className="font-display font-bold text-abyss">{t.door.openDoorMode}</Text>
+              </Pressable>
+            )}
             <Pressable
               onPress={() => supabase.auth.signOut()}
               className="mt-4 self-start rounded-full border border-line px-5 py-2.5"
