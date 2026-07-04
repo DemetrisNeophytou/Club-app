@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { formatPrice, type Event, type Order, type Product } from "@portal/shared";
 import { EventForm, type EventFormValues } from "../../../../components/EventForm";
@@ -18,6 +19,8 @@ export default function EventDetailPage() {
   const [busy, setBusy] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | "new" | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -73,6 +76,36 @@ export default function EventDetailPage() {
     if (!error) refresh();
   };
 
+  const uploadCover = async (file: File) => {
+    setUploading(true);
+    setNotice(null);
+    const path = `events/${event.id}/${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;
+    const { error } = await supabase.storage.from("media").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    if (error) {
+      setUploading(false);
+      setNotice(t.common.error);
+      return;
+    }
+    const { data } = supabase.storage.from("media").getPublicUrl(path);
+    await supabase.from("events").update({ cover_image: data.publicUrl }).eq("id", event.id);
+    setUploading(false);
+    refresh();
+  };
+
+  const cancelEvent = async () => {
+    if (!window.confirm(t.venues.cancelEventConfirm)) return;
+    setBusy(true);
+    const { error } = await supabase.functions.invoke("cancel-event", {
+      body: { event_id: event.id },
+    });
+    setBusy(false);
+    if (error) setNotice(t.common.error);
+    else refresh();
+  };
+
   const saveProduct = async (values: ProductFormValues) => {
     setBusy(true);
     const result =
@@ -106,20 +139,73 @@ export default function EventDetailPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-black">{event.name}</h1>
-        <button
-          onClick={togglePublish}
-          className={`rounded-xl px-4 py-2 font-display text-sm font-bold ${
-            event.status === "published"
-              ? "border border-line text-dim hover:text-bone"
-              : "bg-seaglass text-abyss hover:opacity-90"
-          }`}
-        >
-          {event.status === "published" ? t.venues.unpublish : t.venues.publish}
-        </button>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-2xl font-black">
+          {event.name}
+          {event.status === "cancelled" && (
+            <span className="ml-3 align-middle rounded-full border border-line px-3 py-1 font-mono text-xs text-dim">
+              {t.venues.cancelled}
+            </span>
+          )}
+        </h1>
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/dashboard/events/${event.id}/guestlist`}
+            className="rounded-xl border border-line px-4 py-2 text-sm text-dim hover:border-copper hover:text-copper-hi"
+          >
+            {t.venues.guestlistManager}
+          </Link>
+          {event.status !== "cancelled" && (
+            <button
+              onClick={togglePublish}
+              className={`rounded-xl px-4 py-2 font-display text-sm font-bold ${
+                event.status === "published"
+                  ? "border border-line text-dim hover:text-bone"
+                  : "bg-seaglass text-abyss hover:opacity-90"
+              }`}
+            >
+              {event.status === "published" ? t.venues.unpublish : t.venues.publish}
+            </button>
+          )}
+        </div>
       </div>
       {notice && <p className="text-sm text-copper-hi">{notice}</p>}
+
+      {/* Cover image — the arch hero users see in the app */}
+      <section>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-display text-lg font-bold">{t.venues.coverImage}</h2>
+          <button
+            onClick={() => fileInput.current?.click()}
+            disabled={uploading}
+            className="rounded-xl border border-copper px-3 py-1.5 text-sm text-copper-hi hover:bg-copper/10 disabled:opacity-50"
+          >
+            {uploading ? t.venues.uploading : t.venues.uploadImage}
+          </button>
+          <input
+            ref={fileInput}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) uploadCover(f);
+              e.target.value = "";
+            }}
+          />
+        </div>
+        <div
+          className="h-44 overflow-hidden border border-line bg-deep"
+          style={{ borderRadius: "160px 160px 16px 16px" }}
+        >
+          {event.cover_image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={event.cover_image} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-dim">—</div>
+          )}
+        </div>
+      </section>
 
       {/* Live sales */}
       <section>
@@ -226,6 +312,19 @@ export default function EventDetailPage() {
         <h2 className="mb-3 font-display text-lg font-bold">{t.venues.editEvent}</h2>
         <EventForm initial={event} busy={busy} onSubmit={saveEvent} />
       </section>
+
+      {/* Danger zone — hard rule 6: cancellation refunds everyone in full */}
+      {event.status !== "cancelled" && (
+        <section className="rounded-2xl border border-copper/30 p-5">
+          <button
+            onClick={cancelEvent}
+            disabled={busy}
+            className="rounded-xl border border-copper px-4 py-2 text-sm text-copper-hi hover:bg-copper/10 disabled:opacity-50"
+          >
+            {t.venues.cancelEvent}
+          </button>
+        </section>
+      )}
     </div>
   );
 }

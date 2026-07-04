@@ -1,0 +1,326 @@
+<title>PORTAL — UI Reference</title>
+<style>
+  /* PORTAL design system — locked by PORTAL-SPEC.md §5. Dark only, by spec. */
+  :root {
+    --abyss: #080C16; --deep: #0E1524; --card: #141D31; --line: #233049;
+    --copper: #D98A52; --copper-hi: #F2A868; --seaglass: #5AC8BE;
+    --bone: #F1ECE1; --dim: #8A94AB;
+    color-scheme: dark;
+  }
+  /* Production uses Archivo (variable) + Space Mono; the artifact CSP blocks
+     font CDNs, so these stacks approximate weight & width until device day. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--abyss); color: var(--bone);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .display { font-weight: 900; letter-spacing: .04em; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 40px 20px 64px; }
+  header.page { display: flex; flex-direction: column; gap: 10px; margin-bottom: 36px; }
+  .wordmark { font-size: 34px; letter-spacing: .38em; text-indent: .38em; }
+  .wordmark small { color: var(--copper); }
+  .sub { color: var(--dim); max-width: 62ch; line-height: 1.6; margin: 0; }
+  .sub b { color: var(--bone); font-weight: 600; }
+
+  .frames { display: flex; flex-wrap: wrap; gap: 34px; justify-content: center; }
+
+  /* ── phone frame ── */
+  .phone {
+    width: 340px; flex: 0 0 auto; background: var(--abyss);
+    border: 1px solid var(--line); border-radius: 44px;
+    padding: 12px 12px 10px; box-shadow: 0 30px 70px -30px rgba(0,0,0,.9);
+    display: flex; flex-direction: column; overflow: hidden; position: relative;
+  }
+  .screen { border-radius: 34px; overflow: hidden; background: var(--abyss);
+    display: flex; flex-direction: column; min-height: 660px; }
+  .statusbar { display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 22px 6px; font-size: 13px; color: var(--dim); }
+  .statusbar .mono { color: var(--bone); }
+  .frame-label { text-align: center; color: var(--dim); font-size: 12px;
+    letter-spacing: .22em; text-transform: uppercase; margin: 14px 0 0; }
+
+  .body { padding: 8px 18px 14px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+
+  /* chips */
+  .chiprow { display: flex; gap: 8px; overflow: hidden; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px;
+    font-size: 12.5px; color: var(--dim); white-space: nowrap; background: var(--deep); }
+  .chip.on { border-color: var(--copper); color: var(--copper-hi);
+    background: rgba(217,138,82,.13); }
+
+  /* arch hero — the signature clip */
+  .arch { position: relative; height: 190px; border: 1px solid var(--line);
+    border-radius: 170px 170px 16px 16px; overflow: hidden; }
+  .arch.tall { height: 210px; }
+  .arch .art { position: absolute; inset: 0; }
+  .art.ritual { background:
+      radial-gradient(120% 90% at 78% 8%, rgba(242,168,104,.75), transparent 52%),
+      radial-gradient(90% 70% at 15% 30%, rgba(90,200,190,.35), transparent 55%),
+      radial-gradient(140% 110% at 50% 105%, #1E2A44, var(--deep) 70%);
+  }
+  .art.neptune { background:
+      radial-gradient(110% 80% at 24% 12%, rgba(90,200,190,.6), transparent 55%),
+      radial-gradient(80% 90% at 85% 40%, rgba(217,138,82,.4), transparent 60%),
+      radial-gradient(140% 110% at 50% 105%, #142338, var(--deep) 72%);
+  }
+  .arch::after { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 45%, rgba(8,12,22,.78)); }
+  .arch .on-art { position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 1;
+    display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .badge { border-radius: 999px; padding: 3.5px 10px; font-size: 10.5px; border: 1px solid; }
+  .badge.copper { color: var(--copper-hi); border-color: rgba(217,138,82,.55);
+    background: rgba(217,138,82,.16); }
+  .badge.sea { color: var(--seaglass); border-color: rgba(90,200,190,.5);
+    background: rgba(90,200,190,.12); }
+  .badge.dim { color: var(--dim); border-color: var(--line); background: rgba(35,48,73,.5); }
+
+  .ev-title { font-size: 19px; margin: 2px 0 0; }
+  .ev-meta { display: flex; justify-content: space-between; align-items: baseline;
+    color: var(--dim); font-size: 12.5px; }
+  .price { color: var(--copper-hi); font-size: 13px; }
+
+  /* info strip */
+  .strip { display: flex; border: 1px solid var(--line); border-radius: 16px;
+    background: var(--deep); overflow: hidden; }
+  .strip div { flex: 1; text-align: center; padding: 9px 4px; }
+  .strip div + div { border-left: 1px solid var(--line); }
+  .strip .k { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: .14em; }
+  .strip .v { font-size: 13.5px; margin-top: 2px; }
+
+  .h-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .h-sec { font-size: 14px; margin: 0; }
+  .lineup { display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
+  .lineup div { display: flex; justify-content: space-between; }
+  .lineup span:last-child { color: var(--dim); }
+
+  /* product rows */
+  .prod { border: 1px solid var(--line); border-radius: 18px; background: var(--card);
+    padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .prod .n { font-size: 14px; font-weight: 700; }
+  .prod .d { font-size: 11px; color: var(--dim); margin-top: 2px; }
+  .prod .d.sea { color: var(--seaglass); }
+  .prod .p { text-align: right; }
+  .prod .old { color: var(--dim); text-decoration: line-through; font-size: 11px; display: block; }
+  .prod .now { color: var(--copper-hi); font-size: 16px; }
+  .prod.off { opacity: .45; }
+  .trust { text-align: center; color: var(--dim); font-size: 11px; line-height: 1.6; margin: 2px 8px; }
+
+  /* tab bar */
+  .tabs { display: flex; border-top: 1px solid var(--line); background: var(--deep);
+    padding: 10px 6px 14px; margin-top: auto; }
+  .tabs div { flex: 1; text-align: center; font-size: 10.5px; color: var(--dim); }
+  .tabs .on { color: var(--copper-hi); }
+  .tabs i { display: block; font-style: normal; font-size: 17px; margin-bottom: 3px; }
+
+  /* ticket screen */
+  .tk-center { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 6px; }
+  .ring { position: relative; width: 224px; height: 224px; border-radius: 50%;
+    display: grid; place-items: center; }
+  .ring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; padding: 3px;
+    background: conic-gradient(from 0deg, var(--copper-hi), var(--copper) 45%, var(--seaglass) 75%, transparent 92%, var(--copper-hi));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    animation: spin 6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .ring::before, .pulse { animation: none; } }
+  .qr-pad { background: var(--bone); border-radius: 22px; padding: 13px; }
+  canvas#qr { display: block; width: 158px; height: 158px; image-rendering: pixelated; }
+  .live { display: flex; align-items: center; gap: 7px; color: var(--seaglass); font-size: 13px; }
+  .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--seaglass);
+    animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .code-k { color: var(--dim); font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; }
+  .code-v { font-size: 21px; letter-spacing: .32em; text-indent: .32em; }
+  .tk-actions { display: flex; gap: 10px; width: 100%; margin-top: 4px; }
+  .tk-actions div { flex: 1; text-align: center; border: 1px solid var(--line);
+    border-radius: 16px; padding: 11px 4px; font-size: 12px; color: var(--dim); }
+  .tk-actions .go { border-color: var(--copper); color: var(--copper-hi); }
+
+  /* tokens section */
+  .tokens { margin-top: 56px; border-top: 1px solid var(--line); padding-top: 34px; }
+  .tokens h2 { font-size: 15px; letter-spacing: .24em; text-transform: uppercase;
+    color: var(--dim); margin: 0 0 20px; font-weight: 600; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 12px; }
+  .sw { width: 108px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .sw .c { height: 52px; }
+  .sw .t { padding: 8px 10px; font-size: 10.5px; color: var(--dim); }
+  .sw .t b { display: block; color: var(--bone); font-weight: 600; }
+  .note { color: var(--dim); font-size: 12.5px; line-height: 1.7; max-width: 68ch; margin-top: 26px; }
+  .note b { color: var(--copper-hi); font-weight: 600; }
+</style>
+
+<div class="wrap">
+  <header class="page">
+    <div class="wordmark display">PORT<small>A</small>L</div>
+    <p class="sub">Οπτική αναφορά UI — αναπλήρωση του χαμένου <b>portal-app.html</b>. Τρεις οθόνες
+    του consumer app όπως ορίζει το spec §5: χάλκινο πάνω σε βαθύ μπλε, αψίδες, portal ring.
+    Πες τι θες να αλλάξει και ανανεώνεται.</p>
+  </header>
+
+  <div class="frames">
+
+    <!-- ─── SCREEN 1: Απόψε (feed) ─── -->
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span class="mono">21:37</span><span>5G ▮▮▮</span></div>
+        <div class="body">
+          <div class="wordmark display" style="font-size:22px">PORT<small>A</small>L</div>
+          <div class="chiprow">
+            <span class="chip on">Όλη η Κύπρος</span><span class="chip">Λεμεσός</span><span class="chip">Λευκωσία</span><span class="chip">Αγία Νά…</span>
+          </div>
+          <div class="chiprow">
+            <span class="chip on">Απόψε</span><span class="chip">Αύριο</span><span class="chip">Σαββατοκύριακο</span>
+          </div>
+
+          <div>
+            <div class="arch"><div class="art ritual"></div>
+              <div class="on-art">
+                <span class="badge copper">Φεύγει γρήγορα</span>
+                <span class="badge sea">Guestlist ανοιχτό</span>
+              </div>
+            </div>
+            <h3 class="ev-title display">RITUAL 013</h3>
+            <div class="ev-meta"><span>HALCYON · Παρ 4 Ιουλ · 23:00</span>
+              <span class="mono price">από €15.00</span></div>
+          </div>
+
+          <div>
+            <div class="arch" style="height:120px"><div class="art neptune"></div>
+              <div class="on-art"><span class="badge dim">Sold out</span></div>
+            </div>
+            <h3 class="ev-title display" style="font-size:16px">NEPTUNE FOAM PARTY</h3>
+            <div class="ev-meta"><span>MEDUSA · Σαβ 5 Ιουλ · 23:00</span>
+              <span class="mono price" style="color:var(--dim)">waitlist</span></div>
+          </div>
+        </div>
+        <div class="tabs">
+          <div class="on"><i>◉</i>Απόψε</div><div><i>⌕</i>Αναζήτηση</div>
+          <div><i>▤</i>Εισιτήρια</div><div><i>◌</i>Προφίλ</div>
+        </div>
+      </div></div>
+      <p class="frame-label">1 · Απόψε — discover feed</p>
+    </div>
+
+    <!-- ─── SCREEN 2: Event page ─── -->
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span class="mono">21:38</span><span>5G ▮▮▮</span></div>
+        <div class="body">
+          <div class="arch tall"><div class="art ritual"></div></div>
+          <h3 class="ev-title display" style="font-size:22px">RITUAL 013</h3>
+          <div class="ev-meta"><span>HALCYON · Παρ 4 Ιουλ · 23:00</span></div>
+
+          <div class="strip">
+            <div><div class="k">Πόρτες</div><div class="v mono">22:00</div></div>
+            <div><div class="k">Ηλικία</div><div class="v mono">18+</div></div>
+            <div><div class="k">Genre</div><div class="v mono">techno</div></div>
+          </div>
+
+          <div class="lineup">
+            <div class="h-row"><h4 class="h-sec display">LINEUP</h4></div>
+            <div><span>KLINT</span><span class="mono">01:00</span></div>
+            <div><span>Nadia P.</span><span class="mono">23:30</span></div>
+            <div><span>Aeon</span><span class="mono">22:00</span></div>
+          </div>
+
+          <div class="prod off">
+            <div><div class="n">Early Bird</div><div class="d">Εξαντλήθηκε</div></div>
+            <div class="p mono now" style="color:var(--dim)">Sold out</div>
+          </div>
+          <div class="prod">
+            <div><div class="n">2nd Release</div><div class="d mono">22 εισιτήρια ακόμα</div></div>
+            <div class="p"><span class="old mono">€12.00</span><span class="now mono">€15.00</span></div>
+          </div>
+          <div class="prod">
+            <div><div class="n">Guestlist</div><div class="d sea">Δωρεάν είσοδος πριν τις 23:30</div></div>
+            <div class="p now mono" style="color:var(--seaglass)">Δωρεάν</div>
+          </div>
+          <div class="prod">
+            <div><div class="n">VIP Table — Seafront</div><div class="d">Ελ. κατανάλωση €300 · Προκαταβολή 30%</div></div>
+            <div class="p now mono">€90.00</div>
+          </div>
+          <p class="trust">Χωρίς κρυφές χρεώσεις. Χωρίς μαύρη αγορά.<br>Επιστροφές μόνο μέσω waitlist στην αρχική τιμή.</p>
+        </div>
+      </div></div>
+      <p class="frame-label">2 · Event — products &amp; trust</p>
+    </div>
+
+    <!-- ─── SCREEN 3: Ticket ─── -->
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span class="mono">22:41</span><span>5G ▮▮▮</span></div>
+        <div class="body tk-center">
+          <h3 class="ev-title display" style="font-size:20px; text-align:center">RITUAL 013</h3>
+          <div class="ev-meta"><span>Παρ 4 Ιουλ · Πόρτες 22:00</span></div>
+
+          <div class="ring"><div class="qr-pad"><canvas id="qr" width="29" height="29"></canvas></div></div>
+
+          <div class="live"><span class="pulse"></span><span class="mono">Ενεργό</span></div>
+
+          <div style="text-align:center">
+            <div class="code-k">Κωδικός</div>
+            <div class="code-v mono">KX7M 29QF</div>
+          </div>
+
+          <div class="tk-actions">
+            <div>Μεταφορά σε φίλο</div>
+            <div class="go">Επιστροφή εισιτηρίου</div>
+          </div>
+        </div>
+        <div class="tabs">
+          <div><i>◉</i>Απόψε</div><div><i>⌕</i>Αναζήτηση</div>
+          <div class="on"><i>▤</i>Εισιτήρια</div><div><i>◌</i>Προφίλ</div>
+        </div>
+      </div></div>
+      <p class="frame-label">3 · Εισιτήριο — portal ring + QR 60″</p>
+    </div>
+  </div>
+
+  <!-- ─── tokens ─── -->
+  <section class="tokens">
+    <h2>Design tokens — κλειδωμένα από το spec</h2>
+    <div class="swatches">
+      <div class="sw"><div class="c" style="background:#080C16"></div><div class="t"><b>abyss</b>#080C16 · φόντο</div></div>
+      <div class="sw"><div class="c" style="background:#0E1524"></div><div class="t"><b>deep</b>#0E1524 · επιφάνειες</div></div>
+      <div class="sw"><div class="c" style="background:#141D31"></div><div class="t"><b>card</b>#141D31 · κάρτες</div></div>
+      <div class="sw"><div class="c" style="background:#233049"></div><div class="t"><b>line</b>#233049 · περιγράμματα</div></div>
+      <div class="sw"><div class="c" style="background:#D98A52"></div><div class="t"><b>copper</b>#D98A52 · δράση</div></div>
+      <div class="sw"><div class="c" style="background:#F2A868"></div><div class="t"><b>copper-hi</b>#F2A868 · έμφαση</div></div>
+      <div class="sw"><div class="c" style="background:#5AC8BE"></div><div class="t"><b>seaglass</b>#5AC8BE · επιτυχία</div></div>
+      <div class="sw"><div class="c" style="background:#F1ECE1"></div><div class="t"><b>bone</b>#F1ECE1 · κείμενο</div></div>
+      <div class="sw"><div class="c" style="background:#8A94AB"></div><div class="t"><b>dim</b>#8A94AB · δευτερεύον</div></div>
+    </div>
+    <p class="note">Σημειώσεις πιστότητας: στο πραγματικό app οι τίτλοι είναι <b>Archivo</b> (wide/black)
+    και οι τιμές/ώρες/κωδικοί <b>Space Mono</b> — εδώ προσεγγίζονται με system fonts γιατί η σελίδα
+    δεν φορτώνει εξωτερικά αρχεία. Οι φωτογραφίες των events θα μπουν μέσω Supabase Storage·
+    τα gradients στις αψίδες είναι placeholder με τη σωστή διάθεση. Το QR ανανεώνεται κάθε 60″
+    στο πραγματικό εισιτήριο (anti-screenshot). Dark only — από το spec, όχι από παράλειψη.</p>
+  </section>
+</div>
+
+<script>
+  // Decorative QR-like pattern (29×29) with real finder squares — placeholder,
+  // not a scannable code. Seeded so it looks identical on every load.
+  (function () {
+    const c = document.getElementById("qr"), x = c.getContext("2d"), N = 29;
+    let s = 1013;
+    const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    x.fillStyle = "#F1ECE1"; x.fillRect(0, 0, N, N);
+    x.fillStyle = "#080C16";
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+      const inFinder = (a, b) => i >= a && i < a + 7 && j >= b && j < b + 7;
+      if (inFinder(0, 0) || inFinder(N - 7, 0) || inFinder(0, N - 7)) continue;
+      if (rnd() < 0.44) x.fillRect(i, j, 1, 1);
+    }
+    const finder = (a, b) => {
+      x.fillRect(a, b, 7, 7);
+      x.fillStyle = "#F1ECE1"; x.fillRect(a + 1, b + 1, 5, 5);
+      x.fillStyle = "#080C16"; x.fillRect(a + 2, b + 2, 3, 3);
+    };
+    finder(0, 0); finder(N - 7, 0); finder(0, N - 7);
+  })();
+</script>

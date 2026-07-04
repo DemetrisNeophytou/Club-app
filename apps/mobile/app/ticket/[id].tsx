@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import QRCode from "react-native-qrcode-svg";
@@ -45,11 +45,39 @@ export default function TicketScreen() {
     }
   }, [ticket, qrActive, glExpired, now]);
 
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [transferEmail, setTransferEmail] = useState("");
+  const [transferMsg, setTransferMsg] = useState<string | null>(null);
+  const [transferBusy, setTransferBusy] = useState(false);
+
+  const isTable = ticket?.product.type === "table";
   const returnable =
     ticket?.status === "active" && Date.parse(ticket.event.starts_at) > Date.now();
 
   const returnTicket = useCallback(() => {
     if (!ticket) return;
+    if (isTable) {
+      // Hard rule 5: tables refund in full only >48h before start.
+      const over48h = Date.parse(ticket.event.starts_at) - Date.now() > 48 * 3600_000;
+      if (!over48h) {
+        Alert.alert(t.ticket.cancelTable, t.ticket.cancelTableTooLate);
+        return;
+      }
+      Alert.alert(t.ticket.cancelTable, t.ticket.cancelTableConfirm, [
+        { text: t.venues.cancel, style: "cancel" },
+        {
+          text: t.ticket.cancelTable,
+          style: "destructive",
+          onPress: async () => {
+            const { error } = await supabase.functions.invoke("cancel-table", {
+              body: { ticket_id: ticket.id },
+            });
+            if (!error) setTicket({ ...ticket, status: "refunded" });
+          },
+        },
+      ]);
+      return;
+    }
     Alert.alert(t.ticket.returnConfirmTitle, t.ticket.returnConfirmBody, [
       { text: t.venues.cancel, style: "cancel" },
       {
@@ -63,7 +91,24 @@ export default function TicketScreen() {
         },
       },
     ]);
-  }, [ticket, t]);
+  }, [ticket, t, isTable]);
+
+  const transfer = useCallback(async () => {
+    if (!ticket) return;
+    setTransferBusy(true);
+    setTransferMsg(null);
+    const { data, error } = await supabase.functions.invoke("transfer-ticket", {
+      body: { ticket_id: ticket.id, to_email: transferEmail.trim() },
+    });
+    setTransferBusy(false);
+    if (error || !data?.ok) {
+      setTransferMsg(t.ticket.transferNotFound);
+      return;
+    }
+    setTransferMsg(t.ticket.transferDone);
+    setTicket({ ...ticket, status: "transferred" });
+    setTransferOpen(false);
+  }, [ticket, transferEmail, t]);
 
   if (!ticket) {
     return (
@@ -110,10 +155,17 @@ export default function TicketScreen() {
         <Text className="mt-1 font-mono text-xl tracking-[0.3em] text-bone">{ticket.code}</Text>
 
         <View className="mt-8 w-full flex-row gap-3">
-          {/* Transfer to friend: Phase 3 */}
-          <View className="flex-1 items-center rounded-2xl border border-line py-3.5 opacity-40">
-            <Text className="text-sm text-dim">{t.ticket.transfer}</Text>
-          </View>
+          <Pressable
+            disabled={!returnable || isTable}
+            onPress={() => setTransferOpen(!transferOpen)}
+            className={`flex-1 items-center rounded-2xl border py-3.5 ${
+              returnable && !isTable ? "border-seaglass/60 active:opacity-80" : "border-line opacity-40"
+            }`}
+          >
+            <Text className={`text-sm ${returnable && !isTable ? "text-seaglass" : "text-dim"}`}>
+              {t.ticket.transfer}
+            </Text>
+          </Pressable>
           <Pressable
             disabled={!returnable}
             onPress={returnTicket}
@@ -122,10 +174,32 @@ export default function TicketScreen() {
             }`}
           >
             <Text className={`text-sm ${returnable ? "text-copper-hi" : "text-dim"}`}>
-              {t.ticket.returnTicket}
+              {isTable ? t.ticket.cancelTable : t.ticket.returnTicket}
             </Text>
           </Pressable>
         </View>
+
+        {transferOpen && returnable && !isTable && (
+          <View className="mt-4 w-full">
+            <TextInput
+              value={transferEmail}
+              onChangeText={setTransferEmail}
+              placeholder={t.ticket.transferHint}
+              placeholderTextColor={palette.dim}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              className="rounded-2xl border border-line bg-deep px-4 py-3 text-bone"
+            />
+            <Pressable
+              disabled={transferBusy || !transferEmail.trim()}
+              onPress={transfer}
+              className="mt-3 items-center rounded-2xl bg-seaglass py-3.5 active:opacity-85 disabled:opacity-50"
+            >
+              <Text className="font-display font-bold text-abyss">{t.ticket.transferTitle}</Text>
+            </Pressable>
+          </View>
+        )}
+        {transferMsg && <Text className="mt-3 text-center text-sm text-seaglass">{transferMsg}</Text>}
       </View>
     </SafeAreaView>
   );

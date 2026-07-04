@@ -1,19 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { AppLang } from "@portal/shared";
 import { useI18n } from "../../lib/i18n";
 import { fetchMyVenue, type MyVenue } from "../../lib/data";
 import { supabase } from "../../lib/supabase";
-
-const VenueContext = createContext<MyVenue | null>(null);
-export function useVenue(): MyVenue {
-  const v = useContext(VenueContext);
-  if (!v) throw new Error("useVenue outside dashboard");
-  return v;
-}
+import { VenueContext } from "../../lib/venue-context";
 
 // Auth + membership guard: no session → login; no venue → onboarding.
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -58,6 +52,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <nav className="flex gap-4 md:mt-8 md:flex-col md:gap-3">
             <Link href="/dashboard" className="text-sm text-dim hover:text-bone">
               {t.venues.events}
+            </Link>
+            <Link href="/dashboard/members" className="text-sm text-dim hover:text-bone">
+              {t.venues.members}
             </Link>
           </nav>
           <div className="flex items-center gap-3 md:mt-auto">

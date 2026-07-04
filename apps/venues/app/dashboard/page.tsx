@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { Event } from "@portal/shared";
 import { useI18n } from "../../lib/i18n";
 import { fetchVenueEvents } from "../../lib/data";
-import { useVenue } from "./layout";
+import { useVenue } from "../../lib/venue-context";
 
 const STATUS_TONE: Record<string, string> = {
   draft: "text-dim border-line",

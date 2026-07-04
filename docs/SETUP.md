@@ -17,6 +17,11 @@
 - [x] **Door mode (Phase 2 βήμα 5):** σαρωτής QR με κάμερα, offline manifest, ουρά scans + sync, χειροκίνητο check-in με όνομα, μετρητής μέσα/σύνολο
 - [x] **Waitlist + επιστροφή + push (Phase 2 βήμα 6):** επιστροφή εισιτηρίου → FIFO προσφορά 30' στον επόμενο → αγορά στην αρχική τιμή → refund στον αρχικό· push tokens + ειδοποιήσεις· process-waitlist sweeper
 
+## ⏳ Εκκρεμεί — deploy στο production (μόλις επανασυνδεθεί το Supabase MCP)
+
+- [ ] Apply migration `20260704100000_phase3.sql` (storage bucket + policies, teammate profiles, email lookup, GDPR FKs) — ή copy-paste το `packages/db/apply/phase3.sql`
+- [ ] Deploy 5 νέες Edge Functions: transfer-ticket, cancel-event, cancel-table, delete-account, add-venue-member
+
 ## ✅ Έγινε — μέσω Supabase MCP (3/7/2026)
 
 - [x] Όλα τα SQL migrations εφαρμοσμένα (schema, RLS, realtime, door policy, waitlist, push_tokens)

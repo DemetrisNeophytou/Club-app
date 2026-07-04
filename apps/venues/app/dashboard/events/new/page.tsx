@@ -6,7 +6,7 @@ import { EventForm, type EventFormValues } from "../../../../components/EventFor
 import { useI18n } from "../../../../lib/i18n";
 import { slugify } from "../../../../lib/data";
 import { supabase } from "../../../../lib/supabase";
-import { useVenue } from "../../layout";
+import { useVenue } from "../../../../lib/venue-context";
 
 export default function NewEventPage() {
   const router = useRouter();
