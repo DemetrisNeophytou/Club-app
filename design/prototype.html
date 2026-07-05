@@ -1,0 +1,383 @@
+<title>PORTAL — Πρωτότυπο</title>
+<style>
+  :root {
+    --abyss:#080C16; --deep:#0E1524; --card:#141D31; --line:#233049;
+    --copper:#D98A52; --copper-hi:#F2A868; --seaglass:#5AC8BE;
+    --bone:#F1ECE1; --dim:#8A94AB; color-scheme: dark;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
+  body { margin:0; background:#04060C; color:var(--bone);
+    font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; display:flex; justify-content:center; }
+  .display { font-weight:900; letter-spacing:.04em; }
+  .mono { font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; }
+
+  #phone { width:min(430px,100vw); height:100dvh; background:var(--abyss);
+    display:flex; flex-direction:column; overflow:hidden; position:relative; }
+
+  .screen { flex:1; overflow-y:auto; padding:18px 18px 24px; display:none; }
+  .screen.on { display:block; }
+
+  .wordmark { font-size:24px; letter-spacing:.34em; }
+  .wordmark small { color:var(--copper); }
+
+  .chiprow { display:flex; gap:8px; margin-top:14px; overflow-x:auto; scrollbar-width:none; }
+  .chiprow::-webkit-scrollbar { display:none; }
+  .chip { border:1px solid var(--line); border-radius:999px; padding:7px 14px;
+    font-size:13px; color:var(--dim); background:var(--deep); white-space:nowrap; cursor:pointer; }
+  .chip.on { border-color:var(--copper); color:var(--copper-hi); background:rgba(217,138,82,.13); }
+
+  .arch { position:relative; height:200px; border:1px solid var(--line);
+    border-radius:180px 180px 16px 16px; overflow:hidden; margin-top:20px; cursor:pointer; }
+  .arch .art { position:absolute; inset:0; }
+  .art-1 { background:radial-gradient(120% 90% at 78% 8%,rgba(242,168,104,.75),transparent 52%),
+    radial-gradient(90% 70% at 15% 30%,rgba(90,200,190,.35),transparent 55%),
+    radial-gradient(140% 110% at 50% 105%,#1E2A44,var(--deep) 70%); }
+  .art-2 { background:radial-gradient(110% 80% at 24% 12%,rgba(90,200,190,.6),transparent 55%),
+    radial-gradient(80% 90% at 85% 40%,rgba(217,138,82,.4),transparent 60%),
+    radial-gradient(140% 110% at 50% 105%,#142338,var(--deep) 72%); }
+  .art-3 { background:radial-gradient(100% 80% at 50% 0%,rgba(242,168,104,.5),transparent 55%),
+    radial-gradient(90% 90% at 10% 80%,rgba(90,200,190,.25),transparent 55%),
+    radial-gradient(140% 110% at 50% 105%,#1A2138,var(--deep) 72%); }
+  .arch::after { content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg,transparent 45%,rgba(8,12,22,.78)); }
+  .on-art { position:absolute; left:14px; right:14px; bottom:12px; z-index:1; display:flex; gap:6px; flex-wrap:wrap; }
+
+  .badge { border-radius:999px; padding:4px 11px; font-size:11px; border:1px solid; }
+  .b-copper { color:var(--copper-hi); border-color:rgba(217,138,82,.55); background:rgba(217,138,82,.16); }
+  .b-sea { color:var(--seaglass); border-color:rgba(90,200,190,.5); background:rgba(90,200,190,.12); }
+  .b-dim { color:var(--dim); border-color:var(--line); background:rgba(35,48,73,.5); }
+
+  .ev-title { font-size:20px; margin:10px 0 0; }
+  .ev-meta { display:flex; justify-content:space-between; color:var(--dim); font-size:13px; margin-top:4px; }
+  .price { color:var(--copper-hi); }
+
+  .back { color:var(--dim); font-size:15px; cursor:pointer; display:inline-block; margin-bottom:6px; }
+
+  .strip { display:flex; border:1px solid var(--line); border-radius:16px; background:var(--deep);
+    overflow:hidden; margin-top:16px; }
+  .strip>div { flex:1; text-align:center; padding:10px 4px; }
+  .strip>div+div { border-left:1px solid var(--line); }
+  .strip .k { font-size:10px; color:var(--dim); text-transform:uppercase; letter-spacing:.14em; }
+  .strip .v { font-size:14px; margin-top:2px; }
+
+  .sec { font-size:15px; margin:22px 0 8px; }
+  .lineup div { display:flex; justify-content:space-between; padding:5px 0; font-size:14px; }
+  .lineup span:last-child { color:var(--dim); }
+
+  .prod { border:1px solid var(--line); border-radius:18px; background:var(--card);
+    padding:13px 15px; display:flex; justify-content:space-between; align-items:center;
+    gap:10px; margin-bottom:10px; cursor:pointer; }
+  .prod:active { opacity:.8; }
+  .prod .n { font-size:14.5px; font-weight:700; }
+  .prod .d { font-size:11.5px; color:var(--dim); margin-top:3px; }
+  .prod .d.sea { color:var(--seaglass); }
+  .prod .p { text-align:right; }
+  .prod .old { color:var(--dim); text-decoration:line-through; font-size:11px; display:block; }
+  .prod .now { color:var(--copper-hi); font-size:16px; }
+  .prod.off { opacity:.45; pointer-events:none; }
+  .trust { text-align:center; color:var(--dim); font-size:11.5px; line-height:1.7; margin:14px 10px 0; }
+
+  .tabs { display:flex; border-top:1px solid var(--line); background:var(--deep);
+    padding:10px 6px calc(12px + env(safe-area-inset-bottom)); }
+  .tabs div { flex:1; text-align:center; font-size:10.5px; color:var(--dim); cursor:pointer; }
+  .tabs div.on { color:var(--copper-hi); }
+  .tabs i { display:block; font-style:normal; font-size:18px; margin-bottom:3px; }
+
+  /* checkout sheet */
+  #sheet-wrap { position:absolute; inset:0; background:rgba(8,12,22,.6); display:none;
+    align-items:flex-end; z-index:30; }
+  #sheet-wrap.on { display:flex; }
+  #sheet { width:100%; background:var(--deep); border-top:1px solid var(--line);
+    border-radius:26px 26px 0 0; padding:20px 22px calc(30px + env(safe-area-inset-bottom));
+    animation:up .28s ease; }
+  @keyframes up { from { transform:translateY(60%);} }
+  .grab { width:42px; height:4px; border-radius:99px; background:var(--line); margin:0 auto 16px; }
+  .stepper { display:flex; align-items:center; justify-content:center; gap:34px; margin:22px 0; }
+  .stepper button { width:46px; height:46px; border-radius:50%; border:1px solid var(--line);
+    background:none; color:var(--bone); font-size:20px; cursor:pointer; }
+  .stepper span { font-size:26px; }
+  .total-row { display:flex; justify-content:space-between; align-items:baseline; }
+  .fee-note { text-align:right; font-size:11.5px; color:var(--dim); margin-top:4px; }
+  .cta { width:100%; border:none; border-radius:18px; background:var(--copper); color:var(--abyss);
+    font-weight:800; font-size:16px; padding:16px; margin-top:18px; cursor:pointer; font-family:inherit; }
+  .cta:active { opacity:.85; }
+  .cta.sea { background:var(--seaglass); }
+
+  /* ticket detail */
+  .tk-center { display:flex; flex-direction:column; align-items:center; gap:16px; padding-top:4px; }
+  .ring { position:relative; width:236px; height:236px; border-radius:50%; display:grid; place-items:center; }
+  .ring::before { content:""; position:absolute; inset:0; border-radius:50%; padding:3px;
+    background:conic-gradient(from 0deg,var(--copper-hi),var(--copper) 45%,var(--seaglass) 75%,transparent 92%,var(--copper-hi));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude; animation:spin 6s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg);} }
+  @media (prefers-reduced-motion:reduce){ .ring::before,.pulse{animation:none;} }
+  .qr-pad { background:var(--bone); border-radius:24px; padding:14px; }
+  canvas.qr { display:block; width:168px; height:168px; image-rendering:pixelated; }
+  .live { display:flex; align-items:center; gap:8px; color:var(--seaglass); font-size:14px; }
+  .pulse { width:9px; height:9px; border-radius:50%; background:var(--seaglass); animation:pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity:.35;} }
+  .code-k { color:var(--dim); font-size:11px; letter-spacing:.2em; text-transform:uppercase; text-align:center; }
+  .code-v { font-size:22px; letter-spacing:.3em; text-indent:.3em; text-align:center; margin-top:4px; }
+  .tk-actions { display:flex; gap:10px; width:100%; margin-top:8px; }
+  .tk-actions div { flex:1; text-align:center; border:1px solid var(--line); border-radius:16px;
+    padding:13px 4px; font-size:12.5px; color:var(--dim); cursor:pointer; }
+  .tk-actions .go { border-color:var(--copper); color:var(--copper-hi); }
+
+  .tk-card { border:1px solid var(--line); border-radius:18px; background:var(--card);
+    padding:14px 16px; margin-bottom:10px; cursor:pointer; display:flex;
+    justify-content:space-between; align-items:center; }
+  .empty { text-align:center; color:var(--dim); padding:60px 20px; font-size:14px; }
+
+  .toast { position:absolute; left:20px; right:20px; bottom:90px; background:var(--card);
+    border:1px solid rgba(90,200,190,.5); color:var(--seaglass); border-radius:16px;
+    padding:14px 18px; font-size:14px; text-align:center; z-index:40; display:none; animation:up .3s ease; }
+
+  .note { position:fixed; top:8px; left:50%; transform:translateX(-50%); z-index:50;
+    background:rgba(20,29,49,.92); border:1px solid var(--line); color:var(--dim);
+    font-size:10.5px; padding:5px 12px; border-radius:999px; letter-spacing:.08em; }
+</style>
+
+<div class="note">ΠΡΩΤΟΤΥΠΟ · ψεύτικα δεδομένα · το αληθινό app είναι native</div>
+
+<div id="phone">
+  <!-- ΑΠΟΨΕ -->
+  <div class="screen on" id="s-feed">
+    <div class="wordmark display">PORT<small>A</small>L</div>
+    <div class="chiprow" id="cities"></div>
+    <div class="chiprow" id="dates"></div>
+    <div id="feed"></div>
+  </div>
+
+  <!-- EVENT -->
+  <div class="screen" id="s-event"></div>
+
+  <!-- ΕΙΣΙΤΗΡΙΑ -->
+  <div class="screen" id="s-tickets">
+    <div class="wordmark display" style="font-size:20px; letter-spacing:.2em">ΕΙΣΙΤΗΡΙΑ</div>
+    <div id="tickets-list" style="margin-top:18px"></div>
+  </div>
+
+  <!-- TICKET DETAIL -->
+  <div class="screen" id="s-ticket"></div>
+
+  <!-- ΠΡΟΦΙΛ -->
+  <div class="screen" id="s-profile">
+    <div class="wordmark display" style="font-size:20px; letter-spacing:.2em">ΠΡΟΦΙΛ</div>
+    <p style="color:var(--dim); font-size:14px; margin-top:16px">demo@portal.cy</p>
+    <p class="sec display">ΠΟΥ ΕΧΕΙΣ ΠΑΕΙ</p>
+    <div class="tk-card" style="cursor:default"><div><b>DOCKYARD 03</b><div style="color:var(--dim);font-size:12px;margin-top:2px">THE DOCKYARD · 21 Ιουν</div></div></div>
+    <div class="tk-card" style="cursor:default"><div><b>GOLDEN HOUR</b><div style="color:var(--dim);font-size:12px;margin-top:2px">ONYX ROOF · 14 Ιουν</div></div></div>
+  </div>
+
+  <!-- tabs -->
+  <div class="tabs">
+    <div data-tab="feed" class="on"><i>◉</i>Απόψε</div>
+    <div data-tab="feed"><i>⌕</i>Αναζήτηση</div>
+    <div data-tab="tickets"><i>▤</i>Εισιτήρια</div>
+    <div data-tab="profile"><i>◌</i>Προφίλ</div>
+  </div>
+
+  <!-- checkout sheet -->
+  <div id="sheet-wrap"><div id="sheet"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const EVENTS = [
+  { id:"e1", name:"RITUAL 013", venue:"HALCYON", city:"Λεμεσός", when:"Παρ 4 Ιουλ · 23:00",
+    doors:"22:00", age:"18+", genre:"techno", art:"art-1",
+    badges:[["Φεύγει γρήγορα","b-copper"],["Guestlist ανοιχτό","b-sea"]], from:"από €15.00",
+    lineup:[["KLINT","01:00"],["Nadia P.","23:30"],["Aeon","22:00"]],
+    about:"Peak-time techno, μηδέν φώτα κινητών. Το RITUAL επιστρέφει στο HALCYON.",
+    products:[
+      { id:"p1", n:"Early Bird", price:1200, fee:100, soldout:true },
+      { id:"p2", n:"2nd Release", price:1500, fee:100, left:22, old:1200 },
+      { id:"p3", n:"Guestlist", price:0, fee:0, gl:"Δωρεάν είσοδος πριν τις 23:30" },
+      { id:"p4", n:"VIP Table — Seafront", price:9000, fee:0, table:"Ελ. κατανάλωση €300 · Προκαταβολή 30%" },
+    ]},
+  { id:"e2", name:"VELVET NIGHTS", venue:"CARBON", city:"Λάρνακα", when:"Παρ 4 Ιουλ · 22:00",
+    doors:"21:00", age:"21+", genre:"disco", art:"art-3",
+    badges:[["Guestlist ανοιχτό","b-sea"]], from:"από €10.00",
+    lineup:[["Miss Adamou","22:00"],["Roula V.","00:30"]],
+    about:"Disco και house κλασικά στα Φοινικούδια.",
+    products:[
+      { id:"p5", n:"General Admission", price:1000, fee:100, left:88 },
+      { id:"p6", n:"Guestlist πριν τις 23:00", price:0, fee:0, gl:"Δωρεάν είσοδος πριν τις 23:00" },
+    ]},
+  { id:"e3", name:"NEPTUNE FOAM PARTY", venue:"MEDUSA", city:"Αγία Νάπα", when:"Σαβ 5 Ιουλ · 23:00",
+    doors:"22:00", age:"18+", genre:"edm", art:"art-2",
+    badges:[["Sold out","b-dim"]], from:"waitlist",
+    lineup:[["TWIN FLAME","01:30"],["DJ Sfera","23:00"]],
+    about:"Το μεγαλύτερο foam party του νησιού. Τρεις σκηνές.",
+    products:[ { id:"p7", n:"Final Release", price:2500, fee:100, soldout:true, wl:true } ]},
+];
+const eur = c => "€" + (c/100).toFixed(2);
+let tickets = [], waitlisted = false, qty = 1, currentEvent = null, currentProduct = null;
+
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));
+  document.getElementById("s-"+id).classList.add("on"); }
+document.querySelectorAll(".tabs div").forEach(el=>el.onclick=()=>{
+  document.querySelectorAll(".tabs div").forEach(x=>x.classList.remove("on"));
+  el.classList.add("on");
+  if(el.dataset.tab==="tickets") renderTickets();
+  show(el.dataset.tab);
+});
+
+// chips
+const CITIES=["Όλη η Κύπρος","Λεμεσός","Λευκωσία","Αγία Νάπα","Λάρνακα","Πάφος"];
+const DATES=["Απόψε","Αύριο","Σαββατοκύριακο"];
+let city=0;
+function chips(){
+  document.getElementById("cities").innerHTML = CITIES.map((c,i)=>
+    `<span class="chip ${i===city?"on":""}" onclick="city=${i};chips();renderFeed()">${c}</span>`).join("");
+  document.getElementById("dates").innerHTML = DATES.map((d,i)=>
+    `<span class="chip ${i===0?"on":""}">${d}</span>`).join("");
+}
+function renderFeed(){
+  const list = EVENTS.filter(e=>city===0||e.city===CITIES[city]);
+  document.getElementById("feed").innerHTML = list.map(e=>`
+    <div onclick="openEvent('${e.id}')">
+      <div class="arch"><div class="art ${e.art}"></div>
+        <div class="on-art">${e.badges.map(b=>`<span class="badge ${b[1]}">${b[0]}</span>`).join("")}</div></div>
+      <h3 class="ev-title display">${e.name}</h3>
+      <div class="ev-meta"><span>${e.venue} · ${e.when}</span><span class="mono price">${e.from}</span></div>
+    </div>`).join("") || `<div class="empty">Τίποτα εδώ ακόμα.</div>`;
+}
+function openEvent(id){
+  currentEvent = EVENTS.find(e=>e.id===id);
+  const e = currentEvent;
+  document.getElementById("s-event").innerHTML = `
+    <span class="back" onclick="show('feed')">← Πίσω</span>
+    <div class="arch" style="cursor:default"><div class="art ${e.art}"></div></div>
+    <h3 class="ev-title display" style="font-size:24px">${e.name}</h3>
+    <div class="ev-meta"><span>${e.venue} · ${e.when}</span></div>
+    <div class="strip">
+      <div><div class="k">Πόρτες</div><div class="v mono">${e.doors}</div></div>
+      <div><div class="k">Ηλικία</div><div class="v mono">${e.age}</div></div>
+      <div><div class="k">Genre</div><div class="v mono">${e.genre}</div></div>
+    </div>
+    <p class="sec display">LINEUP</p>
+    <div class="lineup">${e.lineup.map(l=>`<div><span>${l[0]}</span><span class="mono">${l[1]}</span></div>`).join("")}</div>
+    <p class="sec display">ΕΙΣΙΤΗΡΙΑ</p>
+    ${e.products.map(p=>`
+      <div class="prod ${p.soldout&&!p.wl?"off":""}" onclick="openSheet('${p.id}')">
+        <div><div class="n">${p.n}</div>
+          ${p.gl?`<div class="d sea">${p.gl}</div>`:""}
+          ${p.table?`<div class="d">${p.table}</div>`:""}
+          ${p.left?`<div class="d mono">${p.left} εισιτήρια ακόμα</div>`:""}
+          ${p.soldout?`<div class="d">Εξαντλήθηκε</div>`:""}</div>
+        <div class="p">${p.old?`<span class="old mono">${eur(p.old)}</span>`:""}
+          <span class="now mono">${p.soldout&&!p.wl?"Sold out":p.price===0?"Δωρεάν":eur(p.price)}</span></div>
+      </div>`).join("")}
+    <p class="trust">Χωρίς κρυφές χρεώσεις. Χωρίς μαύρη αγορά.<br>Επιστροφές μόνο μέσω waitlist στην αρχική τιμή.</p>
+    <p class="sec display">ΣΧΕΤΙΚΑ</p>
+    <p style="color:var(--dim); font-size:14px; line-height:1.7">${e.about}</p>`;
+  show("event");
+}
+function openSheet(pid){
+  currentProduct = currentEvent.products.find(p=>p.id===pid);
+  qty = 1; renderSheet();
+  document.getElementById("sheet-wrap").classList.add("on");
+}
+function renderSheet(){
+  const p = currentProduct, s = document.getElementById("sheet");
+  if(p.soldout && p.wl){
+    s.innerHTML = `<div class="grab"></div>
+      <b style="font-size:18px">${p.n}</b>
+      <div class="mono" style="color:var(--dim); font-size:13px; margin-top:4px">Sold out</div>
+      ${waitlisted
+        ? `<div style="text-align:center; padding:26px 0">
+             <div style="color:var(--seaglass); font-size:16px">Είσαι στο waitlist</div>
+             <div class="mono" style="font-size:22px; margin-top:8px">Θέση 3 στη σειρά</div>
+           </div>`
+        : `<button class="cta" onclick="waitlisted=true;renderSheet()">Μπες στο waitlist</button>`}
+      <button class="cta" style="background:none;border:1px solid var(--line);color:var(--dim)" onclick="closeSheet()">Κλείσιμο</button>`;
+    return;
+  }
+  const total = p.price*qty, fees = p.fee*qty;
+  s.innerHTML = `<div class="grab"></div>
+    <b style="font-size:18px">${p.n}</b>
+    ${p.table?"":`<div class="stepper">
+      <button onclick="qty=Math.max(1,qty-1);renderSheet()">−</button>
+      <span class="mono">${qty}</span>
+      <button onclick="qty=Math.min(4,qty+1);renderSheet()">+</button></div>`}
+    <div class="total-row" style="margin-top:${p.table?"20px":"0"}">
+      <span style="color:var(--dim)">Σύνολο</span>
+      <span class="mono" style="font-size:24px;color:var(--copper-hi)">${total===0?"Δωρεάν":eur(total)}</span></div>
+    ${fees>0?`<div class="fee-note">Περιλαμβάνει ${eur(fees)} έξοδα κράτησης</div>`:""}
+    <button class="cta" onclick="pay()">${total===0?"Κράτηση":"Πληρωμή"}</button>`;
+}
+function closeSheet(){ document.getElementById("sheet-wrap").classList.remove("on"); }
+document.getElementById("sheet-wrap").onclick = e => { if(e.target.id==="sheet-wrap") closeSheet(); };
+function pay(){
+  const codes = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  for(let i=0;i<(currentProduct.table?1:qty);i++){
+    let code=""; for(let j=0;j<8;j++) code += codes[Math.floor(Math.random()*codes.length)];
+    tickets.push({ id:"t"+Date.now()+i, code, ev:currentEvent, p:currentProduct, status:"active" });
+  }
+  closeSheet();
+  toast("Έτοιμο. Το εισιτήριό σου είναι στα Εισιτήρια.");
+}
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.style.display = "block";
+  setTimeout(()=>t.style.display="none", 2600);
+}
+function renderTickets(){
+  document.getElementById("tickets-list").innerHTML = tickets.length===0
+    ? `<div class="empty">Τίποτα εδώ ακόμα.<br>Αγόρασε από το «Απόψε».</div>`
+    : tickets.map(tk=>`
+      <div class="tk-card" onclick="openTicket('${tk.id}')">
+        <div><b>${tk.ev.name}</b>
+          <div style="color:var(--dim); font-size:12px; margin-top:2px">${tk.ev.when} · ${tk.p.n}</div></div>
+        <span class="mono" style="font-size:11px; color:${tk.status==="active"?"var(--seaglass)":"var(--dim)"}">
+          ${tk.status==="active"?"Ενεργό":"Επιστράφηκε"}</span>
+      </div>`).join("");
+}
+function openTicket(id){
+  const tk = tickets.find(x=>x.id===id);
+  const el = document.getElementById("s-ticket");
+  el.innerHTML = `
+    <span class="back" onclick="renderTickets();show('tickets')">← Πίσω</span>
+    <div class="tk-center">
+      <h3 class="ev-title display" style="font-size:22px; text-align:center">${tk.ev.name}</h3>
+      <div style="color:var(--dim); font-size:13px">${tk.ev.when} · Πόρτες ${tk.ev.doors}</div>
+      ${tk.status!=="active"
+        ? `<div style="width:236px;height:236px;border:1px solid var(--line);border-radius:28px;background:var(--card);display:grid;place-items:center;color:var(--copper-hi);font-size:14px;text-align:center;padding:20px">Επιστράφηκε — σε αναμονή μεταπώλησης</div>`
+        : `<div class="ring"><div class="qr-pad"><canvas class="qr" width="29" height="29" id="qr-${tk.id}"></canvas></div></div>
+           <div class="live"><span class="pulse"></span><span class="mono">Ενεργό</span></div>`}
+      <div><div class="code-k">Κωδικός</div><div class="code-v mono">${tk.code.slice(0,4)} ${tk.code.slice(4)}</div></div>
+      ${tk.status==="active"?`
+      <div class="tk-actions">
+        <div onclick="toast('Στο αληθινό app: γράφεις το email του φίλου σου.')">Μεταφορά σε φίλο</div>
+        <div class="go" onclick="returnTicket('${tk.id}')">Επιστροφή εισιτηρίου</div>
+      </div>`:""}
+    </div>`;
+  show("ticket");
+  if(tk.status==="active") drawQr("qr-"+tk.id, tk.code);
+}
+function returnTicket(id){
+  if(!confirm("Θα μπει στο waitlist για τον επόμενο. Θα πάρεις τα χρήματά σου πίσω όταν πουληθεί.")) return;
+  tickets.find(x=>x.id===id).status = "returned";
+  openTicket(id);
+}
+function drawQr(canvasId, seedStr){
+  const c = document.getElementById(canvasId); if(!c) return;
+  const x = c.getContext("2d"), N = 29;
+  let s = 7; for(const ch of seedStr) s = (s*31 + ch.charCodeAt(0)) % 2147483647;
+  const rnd = () => (s = (s*16807) % 2147483647) / 2147483647;
+  x.fillStyle="#F1ECE1"; x.fillRect(0,0,N,N); x.fillStyle="#080C16";
+  for(let i=0;i<N;i++) for(let j=0;j<N;j++){
+    const f=(a,b)=>i>=a&&i<a+7&&j>=b&&j<b+7;
+    if(f(0,0)||f(N-7,0)||f(0,N-7)) continue;
+    if(rnd()<0.44) x.fillRect(i,j,1,1);
+  }
+  const finder=(a,b)=>{ x.fillRect(a,b,7,7); x.fillStyle="#F1ECE1"; x.fillRect(a+1,b+1,5,5);
+    x.fillStyle="#080C16"; x.fillRect(a+2,b+2,3,3); };
+  finder(0,0); finder(N-7,0); finder(0,N-7);
+}
+chips(); renderFeed();
+</script>
