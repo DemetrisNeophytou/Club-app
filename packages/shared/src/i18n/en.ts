@@ -157,6 +157,12 @@ export const en: typeof el = {
     cancelEventConfirm:
       "Sure? Everyone gets an automatic full refund and all tickets are voided. This can't be undone.",
     cancelled: "Cancelled",
+    payments: "Payments",
+    stripeConnect: "Connect payments with Stripe",
+    stripeActive: "Payments active — revenue goes straight to your account",
+    stripePending: "Onboarding incomplete — continue where you left off",
+    stripeResume: "Resume onboarding",
+    stripeNone: "No payment account — ticket sales are closed",
   },
   door: {
     title: "Door",

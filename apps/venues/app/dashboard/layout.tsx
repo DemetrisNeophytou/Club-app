@@ -56,6 +56,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link href="/dashboard/members" className="text-sm text-dim hover:text-bone">
               {t.venues.members}
             </Link>
+            <Link href="/dashboard/settings" className="text-sm text-dim hover:text-bone">
+              {t.venues.settings}
+            </Link>
           </nav>
           <div className="flex items-center gap-3 md:mt-auto">
             {(["el", "en"] as AppLang[]).map((l) => (
